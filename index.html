@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消消乐</title>
+    <style>
+        #box{
+            display: grid;
+
+        }
+    </style>
+</head>
+<body onload="init()">
+    <div id="box"></div>
+    <script>
+        let imgArr = ['./Images/bells.png', './Images/kaishi.png', './Images/tingzhi.png'], // 图片地址
+            imgData = [],    // 图片对应的数字
+            vis = new Array(); //标记数组
+        // 初始化页面，并添加相关图标
+        function init() {
+            for(let i = 0; i < 7; i++) {
+                imgData[i] = new Array()
+                for(let j = 0; j < 7; i++) {
+                    imgData[i][j] = ''
+                }
+            }
+            
+            for(let i = 0; i < 7; i++) {
+                vis[i] = new Array()
+                for(let j = 0; j < 7; j++){
+                    vis[i][j] = 0;
+                }
+            }
+
+            let box = document.getElementById('box')
+
+            for(let i = 0; i < 7; i++) {
+                for(let j = 0; j < 7; j++) {
+                    imgData[i][j] = parseInt(Math.random() * 10) % 3;//随机数，imgdata数组存的是数字
+                    box.innerHTML += `<div onclick=exchange(this, ${i}, ${j})><img src=${imgArr[imgData[i][j]]}></div>`
+                }
+            }
+
+            // 随机生成一盘动物，需要全盘扫描一遍是否有可消除的
+            scanallImgs()
+
+        }
+    </script>
+</body>
+</html>
