@@ -8,7 +8,19 @@
     <style>
         #box{
             display: grid;
-
+            grid-template-columns: repeat(auto-fill, 50px);
+            width: 350px;
+            height: auto;
+            background: #17d0c7;
+        }
+        #box > div {
+            box-sizing: border-box;
+            padding: 2px;
+        }
+        #box > div img{
+            width: 100%;
+            height: 100%;
+            background: #fff;
         }
     </style>
 </head>
@@ -17,13 +29,15 @@
     <script>
         let imgArr = ['./Images/bells.png', './Images/kaishi.png', './Images/tingzhi.png'], // 图片地址
             imgData = [],    // 图片对应的数字
-            vis = new Array(); //标记数组
+            vis = new Array(), //标记数组
+            sum = 0,lastx = 0,lasty = 0,l_rnum = 0,o_dnum = 0,sum = 0,clickedimg = "",
+left_x = 0,left_y = 0,up_x = 0,up_y = 0;    // 点击移动标识
         // 初始化页面，并添加相关图标
         function init() {
             for(let i = 0; i < 7; i++) {
                 imgData[i] = new Array()
-                for(let j = 0; j < 7; i++) {
-                    imgData[i][j] = ''
+                for(let j = 0; j < 7; j++) {
+                    imgData[i][j] = '';
                 }
             }
             
@@ -46,6 +60,34 @@
             // 随机生成一盘动物，需要全盘扫描一遍是否有可消除的
             scanallImgs()
 
+        }
+
+        // 点击图标事件
+        function exchang(obj, x, y)  {
+            let n = 0, m = 0;
+            if(sum == 0) {  // sum 用来计算第几次点击
+                // 将第一次点击的照片存起来，方便进行对比
+                lastx = x ; 
+                lasty = y ;
+            }
+            _checkeimg[sum] = imgData[x][y]
+            sum ++;
+        }
+        if (sum == 2 && lastx == x && lasty == y) sum = 0; // 连续点击同一张图片进行反选
+        if (sum == 2) {
+            // 判断第二个是否在同行或同列
+            if(lastx == x || lasty == y) {
+                // 判断是否两个是否相邻
+                if(Math.abs(lasty - y) == 1 || Math.abs(lastx - x ) == 1){
+
+                }else {
+
+                }
+            }else{
+                // 非同行或同列
+                alert('这两只不在同一行或同一列');
+                sum = 0
+            }
         }
     </script>
 </body>
