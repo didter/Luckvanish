@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cmn">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -30,8 +30,7 @@
         let imgArr = ['./Images/bells.png', './Images/kaishi.png', './Images/tingzhi.png'], // 图片地址
             imgData = [],    // 图片对应的数字
             vis = new Array(), //标记数组
-            sum = 0,lastx = 0,lasty = 0,l_rnum = 0,o_dnum = 0,sum = 0,clickedimg = "",
-left_x = 0,left_y = 0,up_x = 0,up_y = 0;    // 点击移动标识
+            sum = 0,lastx = 0,lasty = 0;
         // 初始化页面，并添加相关图标
         function init() {
             for(let i = 0; i < 7; i++) {
@@ -53,17 +52,18 @@ left_x = 0,left_y = 0,up_x = 0,up_y = 0;    // 点击移动标识
             for(let i = 0; i < 7; i++) {
                 for(let j = 0; j < 7; j++) {
                     imgData[i][j] = parseInt(Math.random() * 10) % 3;//随机数，imgdata数组存的是数字
-                    box.innerHTML += `<div onclick=exchange(this, ${i}, ${j})><img src=${imgArr[imgData[i][j]]}></div>`
+                    box.innerHTML += `<div onclick=exchange(this, ${i}, ${j}) id='${i}${j}'><img src=${imgArr[imgData[i][j]]}></div>`
                 }
             }
 
             // 随机生成一盘动物，需要全盘扫描一遍是否有可消除的
-            scanallImgs()
+            // scanallImgs()
 
         }
 
         // 点击图标事件
         function exchang(obj, x, y)  {
+            return
             let n = 0, m = 0;
             if(sum == 0) {  // sum 用来计算第几次点击
                 // 将第一次点击的照片存起来，方便进行对比
@@ -72,23 +72,51 @@ left_x = 0,left_y = 0,up_x = 0,up_y = 0;    // 点击移动标识
             }
             _checkeimg[sum] = imgData[x][y]
             sum ++;
-        }
-        if (sum == 2 && lastx == x && lasty == y) sum = 0; // 连续点击同一张图片进行反选
-        if (sum == 2) {
-            // 判断第二个是否在同行或同列
-            if(lastx == x || lasty == y) {
-                // 判断是否两个是否相邻
-                if(Math.abs(lasty - y) == 1 || Math.abs(lastx - x ) == 1){
-
-                }else {
-
+            if (sum == 2 && lastx == x && lasty == y) sum = 0; // 连续点击同一张图片进行反选
+            if (sum == 2) {
+                // 判断第二个是否在同行或同列
+                if(lastx == x || lasty == y) {
+                    // 判断是否两个是否相邻
+                    if(Math.abs(lasty - y) == 1 || Math.abs(lastx - x ) == 1){
+                        imgData[x][y] = _checkeimg[0] // 图片交换：此时的xy坐标是第二个图标的坐标
+                        imgData[lastx][lasty] = _checkeimg[1]
+                        let lastDiv = document.getElementById(`${lastx}${lasty}`)
+                        lastDiv.firstChild().attr('src', imgArr[imgData[x][y]])
+                        obj.firstChild().attr('src', imgArr[imgData[lastx][lasty]])
+                        // 对两张照片进行扫描是否能消除
+                        n = scan(x, y) 
+                        m = scan(lastx, lasty)
+                        // 只要其中一个可以消除，就满足交换条件
+                        if(n == 1 || m == 1) {
+                            sum = 0 = _checkeimg[0] = _checkeimg[1] = 0
+                            removeimg();
+                            alert('消除成功')
+                            adding()   // 添加图片
+                            scanallimgs()  // 全局扫描是否可以自动抵消 
+                        }else {
+                            // 两者都不满足的情况下则还原位置
+                            imgdata[x][y] = _clickedimg[1];
+                            imgdata[lastx][lasty] = _clickedimg[0];
+                            _clickedimg[0] = _clickedimg[1] = 0;
+                        }
+                    }else {
+                        imgdata[x][y] = _clickedimg[1];
+                        imgdata[lastx][lasty] = _clickedimg[0];
+                        _clickedimg[0] = _clickedimg[1] = 0;
+                        divy = document.getElementsByTagName("div");
+                        obj.innerHTML = '<img src="' + imgArr[imgdata[x][y]] + '">';
+                        divy[lastx * 7 + lasty + 1].innerHTML = '<img src="' + imgArr[imgdata[lastx][lasty]] + '">';
+                        sum = 0;
+                        alert("OMG！它们不能消除！交换失败！");
+                    }
+                }else{
+                    // 非同行或同列
+                    alert('这两只不在同一行或同一列');
+                    sum = 0
                 }
-            }else{
-                // 非同行或同列
-                alert('这两只不在同一行或同一列');
-                sum = 0
             }
         }
+        
     </script>
 </body>
 </html>
