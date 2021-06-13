@@ -38,7 +38,7 @@
             vis = new Array(), //标记数组
             sum = 0, lastx = 0, lasty = 0,
             clickedimg = '',
-            left_x, left_y, up_x, up_y,
+            left_x, left_y, up_x, up_y, l_rnum, o_dnum, scan_od,
             _clickedimg = new Array(); //用来存点击的两张图片
 
 
@@ -68,7 +68,7 @@
             }
 
             // 随机生成一盘动物，需要全盘扫描一遍是否有可消除的
-            // scanallImgs()
+            scanallimgs()
 
         }
 
@@ -82,7 +82,7 @@
             }
             _clickedimg[sum] = imgData[x][y]
             sum++;
-            if (sum == 2 && lastx == x && lasty == y) sum = 0; // 连续点击同一张图片进行反选
+            if (sum >= 2 && lastx == x && lasty == y) sum = 0; // 连续点击同一张图片进行反选
             if (sum == 2) {
                 // 判断第二个是否在同行或同列
                 if (lastx == x || lasty == y) {
@@ -97,11 +97,12 @@
                         n = scan(x, y)
                         m = scan(lastx, lasty)
                         // 只要其中一个可以消除，就满足交换条件
+                        console.log(n, m)
                         if (n == 1 || m == 1) {
                             sum = _clickedimg[0] = _clickedimg[1] = 0
+                            console.log('消除成功')
                             removeimg();
-                            alert('消除成功')
-                            adding()   // 添加图片
+                            addimg()   // 添加图片
                             scanallimgs()  // 全局扫描是否可以自动抵消 
                         } else {
                             // 两者都不满足的情况下则还原位置
@@ -207,6 +208,53 @@
             }
         }
 
+        //添加图片
+        function addimg() {
+            for (var i = 0; i < 7; i++) {
+                for (var j = 0; j < 7; j++) {
+                    if (imgData[i][j] == 9) {
+                        imgData[i][j] = parseInt(Math.random() * 10) % 3;  //随机添加
+                        divy = document.getElementsByTagName("div");
+                        _divnum = i * 7 + 1 + j;
+                        console.log(imgArr[imgData[i][j]])
+                        divy[_divnum].innerHTML = `<img src=${imgArr[imgData[i][j]]}>`;
+                    }
+                }
+            }
+        }
+
+        //消除图片
+        function removeimg() {
+            var flag = 0;
+            for (var i = 0; i < 7; i++) {
+                for (var j = 0; j < 7; j++) {
+                    if (vis[i][j] > 0) {         //对应数组标记大于0就消除，并且把标记的数组标记为0
+                        vis[i][j] = 0;
+                        imgData[i][j] = 9;
+                        divy = document.getElementsByTagName("div");
+                        _divnum = i * 7 + 1 + j;
+                        divy[_divnum].innerHTML = '<img src="' + "" + '">';//消除图片
+                        flag = 1;
+                    }
+                }
+            }
+            return flag;
+        }
+
+        //全盘扫描，整盘标记完再扫描，不然有些先删除了，后面扫描就会出问题
+        function scanallimgs() {
+            var c = 0,
+            s = 1;
+            while (s != 0) {  //s!=0表示上一个整盘动物与当前的整盘动物一样，即没有动物可以消除,s由removeimg()返回
+                for (var i = 0; i < 7; i++) {
+                    for (var j = 0; j < 7; j++) {
+                        scan(i, j);
+                    }
+                }
+                s = removeimg();
+                addimg();
+            }
+        }
     </script>
 </body>
 
