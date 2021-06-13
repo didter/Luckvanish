@@ -118,11 +118,11 @@
                         obj.innerHTML = '<img src="' + imgArr[imgData[x][y]] + '">';
                         divy[lastx * 7 + lasty + 1].innerHTML = '<img src="' + imgArr[imgData[lastx][lasty]] + '">';
                         sum = 0;
-                        alert("OMG！它们不能消除！交换失败！");
+                        showfh()
                     }
                 } else {
                     // 非同行或同列
-                    alert('这两只不在同一行或同一列');
+                    showfh()
                     sum = 0
                 }
             }
@@ -216,7 +216,6 @@
                         imgData[i][j] = parseInt(Math.random() * 10) % 3;  //随机添加
                         divy = document.getElementsByTagName("div");
                         _divnum = i * 7 + 1 + j;
-                        console.log(imgArr[imgData[i][j]])
                         divy[_divnum].innerHTML = `<img src=${imgArr[imgData[i][j]]}>`;
                     }
                 }
@@ -255,6 +254,25 @@
                 addimg();
             }
         }
+
+        let timer,times = 1,current = 0,current2 = 2;
+        function showfh() {
+            times = 1;
+            timer = setInterval(jitter,30);
+        };
+        function jitter() {
+            if(times>10){
+                document.body.style.transform = 'rotate(0deg)';
+                clearInterval(timer);
+                return;
+            }
+            current = (current2)%360;
+            document.body.style.transform = 'rotate(' + current + 'deg)';
+            current ++;
+            if(current2 == 1){current2 = -1;}
+            else{current2 = 1 ;}
+            times++;
+        };
     </script>
 </body>
 
