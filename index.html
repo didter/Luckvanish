@@ -1,58 +1,69 @@
 <!DOCTYPE html>
 <html lang="cmn">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
     <title>消消乐</title>
     <style>
-        #box{
+        #box {
             display: grid;
             grid-template-columns: repeat(auto-fill, 50px);
             width: 350px;
             height: auto;
             background: #17d0c7;
         }
-        #box > div {
+
+        #box>div {
             box-sizing: border-box;
             padding: 2px;
         }
-        #box > div img{
+
+        #box>div img {
             width: 100%;
             height: 100%;
             background: #fff;
         }
     </style>
 </head>
+
 <body onload="init()">
     <div id="box"></div>
     <script>
         let imgArr = ['./Images/bells.png', './Images/kaishi.png', './Images/tingzhi.png'], // 图片地址
             imgData = [],    // 图片对应的数字
             vis = new Array(), //标记数组
-            sum = 0,lastx = 0,lasty = 0;
+            sum = 0, lastx = 0, lasty = 0,
+            clickedimg = '',
+            left_x, left_y, up_x, up_y,
+            _clickedimg = new Array(); //用来存点击的两张图片
+
+
         // 初始化页面，并添加相关图标
         function init() {
-            for(let i = 0; i < 7; i++) {
+            for (let i = 0; i < 7; i++) {
                 imgData[i] = new Array()
-                for(let j = 0; j < 7; j++) {
+                for (let j = 0; j < 7; j++) {
                     imgData[i][j] = '';
                 }
             }
-            
-            for(let i = 0; i < 7; i++) {
+
+            for (let i = 0; i < 7; i++) {
                 vis[i] = new Array()
-                for(let j = 0; j < 7; j++){
+                for (let j = 0; j < 7; j++) {
                     vis[i][j] = 0;
                 }
             }
 
             let box = document.getElementById('box')
 
-            for(let i = 0; i < 7; i++) {
-                for(let j = 0; j < 7; j++) {
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j < 7; j++) {
                     imgData[i][j] = parseInt(Math.random() * 10) % 3;//随机数，imgdata数组存的是数字
-                    box.innerHTML += `<div onclick=exchange(this, ${i}, ${j}) id='${i}${j}'><img src=${imgArr[imgData[i][j]]}></div>`
+                    box.innerHTML += `<div onclick=exchange(this,${i},${j}) id='${i}${j}'><img src=${imgArr[imgData[i][j]]}></div>`
                 }
             }
 
@@ -62,61 +73,141 @@
         }
 
         // 点击图标事件
-        function exchang(obj, x, y)  {
-            return
+        function exchange(obj, x, y) {
             let n = 0, m = 0;
-            if(sum == 0) {  // sum 用来计算第几次点击
+            if (sum == 0) {  // sum 用来计算第几次点击
                 // 将第一次点击的照片存起来，方便进行对比
-                lastx = x ; 
-                lasty = y ;
+                lastx = x;
+                lasty = y;
             }
-            _checkeimg[sum] = imgData[x][y]
-            sum ++;
+            _clickedimg[sum] = imgData[x][y]
+            sum++;
             if (sum == 2 && lastx == x && lasty == y) sum = 0; // 连续点击同一张图片进行反选
             if (sum == 2) {
                 // 判断第二个是否在同行或同列
-                if(lastx == x || lasty == y) {
+                if (lastx == x || lasty == y) {
                     // 判断是否两个是否相邻
-                    if(Math.abs(lasty - y) == 1 || Math.abs(lastx - x ) == 1){
-                        imgData[x][y] = _checkeimg[0] // 图片交换：此时的xy坐标是第二个图标的坐标
-                        imgData[lastx][lasty] = _checkeimg[1]
+                    if (Math.abs(lasty - y) == 1 || Math.abs(lastx - x) == 1) {
+                        imgData[x][y] = _clickedimg[0] // 图片交换：此时的xy坐标是第二个图标的坐标
+                        imgData[lastx][lasty] = _clickedimg[1]
                         let lastDiv = document.getElementById(`${lastx}${lasty}`)
-                        lastDiv.firstChild().attr('src', imgArr[imgData[x][y]])
-                        obj.firstChild().attr('src', imgArr[imgData[lastx][lasty]])
+                        lastDiv.innerHTML = `<img src=${imgArr[imgData[lastx][lasty]]}>`
+                        obj.innerHTML = '<img src="' + imgArr[imgData[x][y]] + '">';
                         // 对两张照片进行扫描是否能消除
-                        n = scan(x, y) 
+                        n = scan(x, y)
                         m = scan(lastx, lasty)
                         // 只要其中一个可以消除，就满足交换条件
-                        if(n == 1 || m == 1) {
-                            sum = 0 = _checkeimg[0] = _checkeimg[1] = 0
+                        if (n == 1 || m == 1) {
+                            sum = _clickedimg[0] = _clickedimg[1] = 0
                             removeimg();
                             alert('消除成功')
                             adding()   // 添加图片
                             scanallimgs()  // 全局扫描是否可以自动抵消 
-                        }else {
+                        } else {
                             // 两者都不满足的情况下则还原位置
-                            imgdata[x][y] = _clickedimg[1];
-                            imgdata[lastx][lasty] = _clickedimg[0];
+                            imgData[x][y] = _clickedimg[1];
+                            imgData[lastx][lasty] = _clickedimg[0];
                             _clickedimg[0] = _clickedimg[1] = 0;
                         }
-                    }else {
-                        imgdata[x][y] = _clickedimg[1];
-                        imgdata[lastx][lasty] = _clickedimg[0];
+                    } else {
+                        imgData[x][y] = _clickedimg[1];
+                        imgData[lastx][lasty] = _clickedimg[0];
                         _clickedimg[0] = _clickedimg[1] = 0;
                         divy = document.getElementsByTagName("div");
-                        obj.innerHTML = '<img src="' + imgArr[imgdata[x][y]] + '">';
-                        divy[lastx * 7 + lasty + 1].innerHTML = '<img src="' + imgArr[imgdata[lastx][lasty]] + '">';
+                        obj.innerHTML = '<img src="' + imgArr[imgData[x][y]] + '">';
+                        divy[lastx * 7 + lasty + 1].innerHTML = '<img src="' + imgArr[imgData[lastx][lasty]] + '">';
                         sum = 0;
                         alert("OMG！它们不能消除！交换失败！");
                     }
-                }else{
+                } else {
                     // 非同行或同列
                     alert('这两只不在同一行或同一列');
                     sum = 0
                 }
             }
         }
-        
+
+        // 扫描，以当前的图标为中心，向左向右，向上向下
+        function scan(x, y) {
+            clickedimg = imgArr[imgData[x][y]];
+            var scan_lr = 1, scan_ud = 1;
+            left_x = x;
+            left_y = y;
+            up_x = x;
+            up_y = y;
+            //如果该动物的左边与它自己相同，并且对应的标记数组大于0，就不继续扫描（因为代表已经扫过了一这行）
+            if (y != 0 && imgArr[imgData[x][y - 1]] == clickedimg && vis[x][y - 1] > 0) {
+                scan_lr = 0;
+            }
+            //如果该动物的上边与它自己相同，并且对应的标记数组大于0，就不继续扫描（因为代表已经扫过了一这列）
+            if (x != 0 && imgArr[imgData[x - 1][y]] == clickedimg && vis[x - 1][y] > 0) {
+                scan_od = 0;
+            }
+            if (scan_lr == 1) {
+                for (var a = 0; ; a++) {
+                    if (y - a < 0 || imgArr[imgData[x][y - a]] != clickedimg) {
+                        break;
+                    } else if (imgArr[imgData[x][y - a]] == clickedimg) { //向左扫描
+                        vis[x][y - a]++;
+                        l_rnum++;
+                        if (a != 0) left_y--;//记下与当前动物相同的最左边的动物，横向重置标记数组的时候是用循环从最左边开始
+                    }
+                }
+                for (var a = 1; ; a++) {
+                    if (y + a > 6 || imgArr[imgData[x][y + a]] != clickedimg) break;
+                    else if (imgArr[imgData[x][y + a]] == clickedimg) { //向右扫描
+                        vis[x][y + a]++;
+                        l_rnum++;
+                    }
+                }
+
+                //向左与向右的相同动物加起来不超过三个，即横向不能消除，
+                if (l_rnum < 3) {
+                    for (var i = 0; i < l_rnum; i++) {
+                        vis[left_x][left_y + i] = vis[left_x][left_y + i] - 1;
+                    }
+                    l_rnum = 0;
+                }
+            }
+            if (scan_ud == 1) {
+                for (var b = 0; ; b++) {
+                    if (x - b < 0 || imgArr[imgData[x - b][y]] != clickedimg) {
+                        break;
+                    }
+                    else if (imgArr[imgData[x - b][y]] == clickedimg) { //向上扫描
+                        vis[x - b][y]++;
+                        o_dnum++;
+                        if (b != 0) up_x--;//记下与当前动物相同的最上边的动物，纵向重置标记数组的时候是用循环从最上边开始
+                    }
+
+                }
+                for (var b = 1; ; b++) {
+                    if (x + b > 6 || imgArr[imgData[x + b][y]] != clickedimg) break;
+                    else if (imgArr[imgData[x + b][y]] == clickedimg) { //向下扫描
+                        vis[x + b][y]++;
+                        o_dnum++;
+                    }
+                }
+                //向下与向上的相同动物加起来不超过三个，即纵向不能消除，就要把标记数组减一，而不是设置为0，因为不能保证横向不能消除，为了保存那个共享的动物。
+                if (o_dnum < 3) {
+                    for (var j = 0; j < o_dnum; j++) {
+                        vis[up_x + j][up_y] = vis[up_x + j][up_y] - 1;
+                    }
+                    o_dnum = 0;
+                }
+            }
+            if (l_rnum >= 3 || o_dnum >= 3) {   //有一行或者有一列满足消除，即相同的动物大于等于3，返回1，表示可以交换
+                l_rnum = 0;
+                o_dnum = 0;
+                return 1;
+            } else {
+                l_rnum = 0;
+                o_dnum = 0;
+                return 0;
+            }
+        }
+
     </script>
 </body>
+
 </html>
